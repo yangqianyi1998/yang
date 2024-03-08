@@ -1,0 +1,30 @@
+const Web3 = require('web3');
+const fs = require('fs');
+
+// 连接到以太坊节点
+const web3 = new Web3('http://localhost:8545'); // 替换为你的以太坊节点的URL
+
+// 读取合约字节码和ABI
+const bytecode = fs.readFileSync('MyContract.bytecode').toString();
+const abi = JSON.parse(fs.readFileSync('MyContract.abi').toString());
+
+// 部署合约
+async function deployContract() {
+  const accounts = await web3.eth.getAccounts();
+  const contract = new web3.eth.Contract(abi);
+
+  const deployment = contract.deploy({
+    data: bytecode,
+    arguments: [], // 如果有构造函数参数，按需提供
+  });
+
+  const options = {
+    from: accounts[0], // 替换为你的部署账户
+    gas: 3000000, // 替换为适当的gas限制
+  };
+
+  const deployedContract = await deployment.send(options);
+  console.log('Contract deployed at address:', deployedContract.options.address);
+}
+
+deployContract();
